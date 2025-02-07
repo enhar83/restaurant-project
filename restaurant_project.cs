@@ -13,7 +13,7 @@ namespace restorant_projesi_proje1_
         static void Main(string[] args)
         {
             #region bilgiler
-            //değer ve referans tiplerini de araştır.(araştırma ödevi olacak herhangi bir ödev teslimi yok)
+            //değer ve referans tiplerini de araştır.(araştırma ödevi olacak her hangi bir ödev teslimi yok)
             //diziler dahil öncesine kadar olan kısımlar olacak. sonrasını eklemek yasak.
             //hangi tuşun hangi koda denk geleceğini incele.
             //diziler kullanılabilir.
@@ -23,9 +23,9 @@ namespace restorant_projesi_proje1_
             //kasa işlemde günün getirisi vs. olucak.
             #endregion
 
-            int menuSecim, menuSecimAdet, masaId, i, j, gunlukCiro = 0, acikMasaSayisi = 0, doluMasaSayisi = 0;
+            int menuSecim, menuSecimAdet, masaId, i, gunlukCiro = 0, acikMasaSayisi = 0, doluMasaSayisi = 0;
 
-            bool menuSecimDevam = true, masaAc = true;
+            bool menuSecimDevam = true;
 
             string[] etYemekleri = { "Köfte", "Pirzola", "İskender"};
             string[] pizzalar = { "Margarita", "Karışık" , "Vejeteryan" };
@@ -56,18 +56,38 @@ namespace restorant_projesi_proje1_
                     case 1:
 
                         Console.Clear();
-                        Console.WriteLine("MASA AÇ\n--------------------------------------");
+                        masaAcBasi:
+                        Console.WriteLine("MASA AÇ\n---------------------------------------------------------------");
 
                         for (i = 0; i < masalar.Length; i++)
                         {
                             Console.WriteLine($"{masalar[i]}       {masaAcma[i]}");
                         }
-                        Console.WriteLine("--------------------------------------");
+                        Console.WriteLine("---------------------------------------------------------------");
+
+                        Console.WriteLine("ANA MENÜ için [ESC]/Masa ekleme işlemine başlamak için herhangi bir tuşa basınız\n---------------------------------------------------------------");
+
+                        var anaMenuTusu = Console.ReadKey(true).Key;
+                        if (anaMenuTusu == ConsoleKey.Escape) //esc girilip girilmediğini kontrol edecek.
+                        {
+                            Console.Clear();
+                            goto anaMenu;
+                        }
+
+                        if (acikMasaSayisi == 7) //her masa açılmışsa daha fazla masa açılamaz
+                        {
+                            Console.WriteLine("Zaten her masayı açtınız.Daha fazla masa açamazsınız.\n[ENTER]'a basınız.");
+                            Console.ReadLine();
+                            Console.Clear();
+                            goto anaMenu;
+                        }
+
                         Console.Write("Aktif hale getirmek istediğiniz masanın ID numarasını giriniz:");
-                    tekrarMasaAcSecim:
+                        tekrarMasaAcSecim: 
+
                         try
                         {
-                            while (masaAc)
+                            while (true) //sonsuz döngü olarak atadım,gotolar ile sonsuzdan çıkılacak şekilde
                             {
                                 masaId = int.Parse(Console.ReadLine());
 
@@ -84,31 +104,46 @@ namespace restorant_projesi_proje1_
                                 {
                                     Console.WriteLine($"{masalar[masaId - 1]} açılıyor.\n");
                                     masaAcma[masaId - 1] = "[açık]"; //masanın kapalıdan açığa alınması için
-                                }
-                                Console.Write("Masa açmaya devam etmek ister misiniz?(1.Evet/2.Hayır):");
-                                tekrarMasaAcTamamDevam:
-                                int masaAcTamamDevam = int.Parse(Console.ReadLine());
+                                    acikMasaSayisi++;
 
-                                if (masaAcTamamDevam == 1)
+                                    if (acikMasaSayisi == 7)
+                                    {
+                                        Console.WriteLine("Zaten her masayı açtınız.Daha fazla masa açamazsınız.\n[ENTER]'a basınız.");
+                                        Console.ReadLine();
+                                        Console.Clear();
+                                        goto masaAcBasi;
+                                    }
+                                }
+                                Console.Write("Masa açmaya devam etmek ister misiniz?(Evet için [1]/Hayır için [ESC] tuşuna basınız)");
+                                tekrarMasaAcTamamDevam:
+                                var masaAcTamamDevam = Console.ReadKey(true).Key;
+
+                                if (masaAcTamamDevam == ConsoleKey.D1)
                                 {
+                                    Console.Clear();
+                                    Console.WriteLine("MASA AÇ\n---------------------------------------------------------------");
+                                    for (i = 0; i < masalar.Length; i++)
+                                    {
+                                        Console.WriteLine($"{masalar[i]}       {masaAcma[i]}");
+                                    }
+                                    Console.WriteLine("---------------------------------------------------------------");
                                     Console.Write("\nAçmak istediğiniz masa idsini giriniz:");
                                     goto tekrarMasaAcSecim;
                                 }
-                                else if (masaAcTamamDevam == 2)
+                                else if (masaAcTamamDevam == ConsoleKey.Escape)
                                 {
-                                    Console.WriteLine("Ana menüye yönlendiriliyorsunuz...");
-                                    Console.ReadLine();
                                     Console.Clear();
-                                    goto anaMenu;
+                                    goto masaAcBasi;
                                 }
                                 else
                                 {
-                                    Console.Write("Lütfen geçerli bir değer giriniz:");
+                                    Console.Write("\nLütfen doğru tuşlara basınız.");
                                     goto tekrarMasaAcTamamDevam;
                                 }
 
                             }
                         }
+
                         catch (FormatException)
                         {
                             Console.Write("Hatalı giriş! Lütfen yalnızca rakam giriniz:");
@@ -119,34 +154,47 @@ namespace restorant_projesi_proje1_
                             Console.Write("Geçersiz masa numarası! 1 ile 7 arasında bir sayı giriniz:");
                             goto tekrarMasaAcSecim;
                         }
-                        break;
-                    
+
 
 
                     case 2:
                         Console.Clear();
-                        Console.WriteLine("MASA İŞLEM\n--------------------------------------");
+                        masaİslemBasi:
+                        Console.WriteLine("MASA İŞLEM\n---------------------------------------------------------------");
 
-                        // Açık olan masa sayısını kontrol et
-                        for (i = 0; i < masalar.Length; i++)
+                        for (i = 0; i < masalar.Length; i++) //açık olan masaları göstermesi için bir for döngüsü
                         {
                             if (masaAcma[i] == "[açık]")
                             {
                                 Console.WriteLine($"{masalar[i]}       {masaDurumu[i]}");
-                                acikMasaSayisi++;
                             }
                         }
 
-                        // Eğer hiç açık masa yoksa uyarı ver ve ana menüye yönlendir
-                        if (acikMasaSayisi == 0)
+                        if (acikMasaSayisi == 0) //hiç açık masa yoksa uyarı mesajı ve ana menüye yönlendirme
                         {
-                            Console.WriteLine("\nLütfen önce masaları açın. Ana menüye yönlendiriliyorsunuz...");
+                            Console.WriteLine("\nLütfen önce masaları açın.Ana menüye yönlendiriliyorsunuz.Lütfen [ENTER] tuşuna basın");
+                            Console.ReadLine();
+                            Console.Clear();
+                            goto anaMenu;
+                        }
+                        else if (doluMasaSayisi == acikMasaSayisi) //açık olan her masa doluysa daha fazla alınanaması için
+                        {
+                            Console.WriteLine("Açık olan her masa dolu.Daha fazla masa dolamaz.\n[ENTER]'a basınız.");
                             Console.ReadLine();
                             Console.Clear();
                             goto anaMenu;
                         }
 
-                        Console.Write("\nİşlem yapmak istediğiniz masanın ID numarasını giriniz: ");
+                        Console.Write("\nANA MENÜ için [ESC]/Masa ekleme işlemine başlamak için herhangi bir tuşa basınız\n---------------------------------------------------------------");
+
+                        anaMenuTusu = Console.ReadKey(true).Key;
+                        if (anaMenuTusu == ConsoleKey.Escape) //esc girilip girilmediğini kontrol edecek
+                        {
+                            Console.Clear();
+                            goto anaMenu;
+                        }
+
+                        Console.Write("\nİşlem yapmak istediğiniz masanın ID numarasını giriniz:");
                         tekrarMasaSecim:
                         try
                         {
@@ -157,7 +205,7 @@ namespace restorant_projesi_proje1_
 
                             if (masaAcma[masaId - 1] != "[açık]")
                             {
-                                Console.WriteLine("Bu masa şu anda kapalı! Lütfen açık olan masalardan birini seçiniz.");
+                                Console.WriteLine("Bu masa şu anda kapalı!Lütfen açık olan masalardan birini seçiniz.");
                                 goto tekrarMasaSecim;
                             }
 
@@ -188,31 +236,31 @@ namespace restorant_projesi_proje1_
 
                                 Console.WriteLine("-----------------------------------------------------------");
 
-                                do // Masanın dolu konumuna alınabilmesi için en az bir sipariş verilmesi gerekiyor.
+                                do //Masanın dolu konumuna alınabilmesi için en az bir sipariş verilmesi gerekiyor.bundan dolayı do while kullandım
                                 {
-                                    Console.Write("Eklemek istediğiniz ürünün ID numarasını giriniz: ");
-                                tekrarMenuSecim:
+                                    Console.Write("\nEklemek istediğiniz ürünün ID numarasını giriniz:");
+                                    tekrarMenuSecim:
                                     menuSecim = int.Parse(Console.ReadLine());
 
-                                    Console.Write("Kaç adet istersiniz: ");
+                                    Console.Write("Kaç adet istersiniz:");
                                     menuSecimAdet = int.Parse(Console.ReadLine());
 
-                                    if (menuSecim >= 1 && menuSecim <= 3) // Et yemekleri
+                                    if (menuSecim >= 1 && menuSecim <= 3) //Et yemekleri
                                     {
                                         Console.WriteLine($"{menuSecimAdet} adet {etYemekleri[menuSecim - 1]} hazırlanıyor.");
                                         masaHesap[masaId - 1] += menuSecimAdet * etYemekleriFiyat[menuSecim - 1];
                                     }
-                                    else if (menuSecim >= 4 && menuSecim <= 6) // Pizzalar
+                                    else if (menuSecim >= 4 && menuSecim <= 6) //Pizzalar
                                     {
                                         Console.WriteLine($"{menuSecimAdet} adet {pizzalar[menuSecim - 4]} pizza hazırlanıyor.");
                                         masaHesap[masaId - 1] += menuSecimAdet * pizzalarFiyat[menuSecim - 4];
                                     }
-                                    else if (menuSecim >= 7 && menuSecim <= 9) // Sıcak içecekler
+                                    else if (menuSecim >= 7 && menuSecim <= 9) //Sıcak içecekler
                                     {
                                         Console.WriteLine($"{menuSecimAdet} adet {sicakIcecekler[menuSecim - 7]} hazırlanıyor.");
                                         masaHesap[masaId - 1] += menuSecimAdet * sicakIceceklerFiyat[menuSecim - 7];
                                     }
-                                    else if (menuSecim >= 10 && menuSecim <= 12) // Soğuk içecekler
+                                    else if (menuSecim >= 10 && menuSecim <= 12) //Soğuk içecekler
                                     {
                                         Console.WriteLine($"{menuSecimAdet} adet {sogukIcecekler[menuSecim - 10]} hazırlanıyor.");
                                         masaHesap[masaId - 1] += menuSecimAdet * sogukIceceklerFiyat[menuSecim - 10];
@@ -223,35 +271,36 @@ namespace restorant_projesi_proje1_
                                         goto tekrarMenuSecim;
                                     }
 
-                                    Console.Write("\nSeçime devam etmek ister misiniz? (1.Evet/2.Hayır): ");
+                                    Console.Write("\nSeçime devam etmek ister misiniz?(Evet için [1]/Hayır için [ESC] tuşuna basınız)");
                                     tekrarMenuSecimTamamDevam:
-                                    int menuSecimTamamDevam = int.Parse(Console.ReadLine());
+                                    var menuSecimTamamDevam = Console.ReadKey(true).Key;
 
-                                    if (menuSecimTamamDevam == 2) // Sipariş tamamlandığında
+                                    if (menuSecimTamamDevam == ConsoleKey.Escape) //Sipariş tamamlandığında menuSecimDevam false olur ve ana menüye gider.
                                     {
                                         menuSecimDevam = false;
                                     }
-                                    else if (menuSecimTamamDevam == 1)
+                                    else if (menuSecimTamamDevam == ConsoleKey.D1)
                                     {
                                         menuSecimDevam = true;
                                     }
                                     else
                                     {
-                                        Console.Write("Lütfen geçerli bir değer giriniz: ");
+                                        Console.Write("Lütfen geçerli bir değer giriniz:");
                                         goto tekrarMenuSecimTamamDevam;
                                     }
 
                                 }
-                                while (menuSecimDevam == true); // True olduğu sürece sipariş alınmaya devam edilecek.
+                                while (menuSecimDevam == true); //True olduğu sürece sipariş alınmaya devam edilecek
 
                                 masaDurumu[masaId - 1] = "[dolu]";
+                                doluMasaSayisi++;
 
                                 Console.Clear();
-                                goto anaMenu;
+                                goto masaİslemBasi;
                             }
                             else if (masaDurumu[masaId - 1] == "[dolu]")
                             {
-                                Console.Write($"{masalar[masaId - 1]} şu anda dolu. Lütfen boş olan bir masa seçiniz: ");
+                                Console.Write($"{masalar[masaId - 1]} şu anda dolu. Lütfen boş olan bir masa seçiniz:");
                                 goto tekrarMasaSecim;
                             }
                             else
@@ -273,31 +322,33 @@ namespace restorant_projesi_proje1_
 
 
                     case 3:
-                        
+                
                         Console.Clear();
-                        Console.WriteLine("MASA HESAP\n--------------------------------------------------\n");
+                        Console.WriteLine("MASA HESAP\n---------------------------------------------------------------");
 
-                        acikMasaSayisi = 0; //masa işlem kısmında da kullanıldığı için burda sıfırlıyorum.
-                        for (i = 0; i < masaAcma.Length ; i++)
+                        for (i = 0; i < masalar.Length; i++) //dolu olan masaları göstermesi için bir for döngüsü
                         {
-                            if (masaAcma[i] == "[açık]")
+                            if (masaDurumu[i] == "[dolu]")
                             {
-                                acikMasaSayisi++;
-                                for (j = 0; j < masaDurumu.Length; j++)
-                                {
-                                    if (masaDurumu[i] == "[dolu]")
-                                    {
-                                        doluMasaSayisi++;
-                                    }
-                                }
+                                Console.WriteLine($"{masalar[i]}       {masaDurumu[i]}");
                             }
                         }
+                        Console.WriteLine("---------------------------------------------------------------");
 
                         if (acikMasaSayisi == 0)
                         {
                             Console.WriteLine("Şu anda açık masa bulunmamakta hesabı görmek için masayı açmalı ve sipariş almalısınız.");
-                            Console.WriteLine("Ana menüye yönlendiriliyorsunuz...");
+                            Console.WriteLine("Ana menüye yönlendiriliyorsunuz.Lütfen [ENTER] tuşuna basınız.");
                             Console.ReadLine();
+                            Console.Clear();
+                            goto anaMenu;
+                        }
+
+                        Console.Write("ANA MENÜ için [ESC]/Hesap alma işlemine başlamak için herhangi bir tuşa basınız\n---------------------------------------------------------------");
+
+                        anaMenuTusu = Console.ReadKey(true).Key;
+                        if (anaMenuTusu == ConsoleKey.Escape) //esc girilip girilmediğini kontrol edecek.
+                        {
                             Console.Clear();
                             goto anaMenu;
                         }
@@ -307,15 +358,15 @@ namespace restorant_projesi_proje1_
                             if (doluMasaSayisi == 0)
                             {
                                 Console.WriteLine("Şu anda dolu masa bulunmamakta hesabı görmek için masanın dolu olması gerekmektedir.");
-                                Console.WriteLine("Ana menüye yönlendiriliyorsunuz...");
+                                Console.WriteLine("Ana menüye yönlendiriliyorsunuz.Lütfen [ENTER] tuşuna basınız.");
                                 Console.ReadLine();
                                 Console.Clear();
                                 goto anaMenu;
                             }
                             else
                             {
-                                Console.Write("Hangi masanın hesabını görmek istiyorsunuz?:");
-                            tekrarMasaHesapSecim:
+                                Console.Write("\nHangi masanın hesabını almak istiyorsunuz?:");
+                                tekrarMasaHesapSecim:
                                 masaId = int.Parse(Console.ReadLine());
 
                                 if (masaAcma[masaId - 1] == "[açık]")
@@ -325,7 +376,52 @@ namespace restorant_projesi_proje1_
                                         masaGunlukCiro[masaId - 1] += masaHesap[masaId - 1];
                                         Console.WriteLine($"{masalar[masaId - 1]}nın hesabı:{masaHesap[masaId - 1]}");
                                         masaHesap[masaId - 1] = 0;
+                                        doluMasaSayisi -= 1;
                                         masaDurumu[masaId - 1] = "[boş]";
+
+                                        Console.WriteLine($"\nŞu anda dolu olan masa sayısı:{doluMasaSayisi}");
+
+                                        if (doluMasaSayisi == 0)
+                                        {
+                                            Console.WriteLine("Şu anda her masa boş.Hesabını görebileceğiniz bir masa yok.");
+                                            Console.WriteLine("[ENTER] tuşuna basarak ana menüye gidebilirsiniz.");
+                                            Console.ReadLine();
+                                            Console.Clear();
+                                            goto anaMenu;
+                                        }
+
+                                        else
+                                        {
+                                            Console.Write("\nHesap almaya devam etmek ister misiniz?(Evet için [1]/Hayır için [ESC] tuşuna basınız)");
+                                            tekrarHesapTamamDevam:
+                                            var masaHesapTamamDevam = Console.ReadKey(true).Key;
+
+                                            if (masaHesapTamamDevam == ConsoleKey.D1)
+                                            {
+                                                Console.Clear();
+                                                Console.WriteLine("MASA HESAP\n---------------------------------------------------------------");
+                                                for (i = 0; i < masalar.Length; i++) //dolu olan masaları göstermesi için bir for döngüsü
+                                                {
+                                                    if (masaDurumu[i] == "[dolu]")
+                                                    {
+                                                        Console.WriteLine($"{masalar[i]}       {masaDurumu[i]}");
+                                                    }
+                                                }
+                                                Console.WriteLine("---------------------------------------------------------------");
+                                                Console.Write("\nHesabını almak istediğiniz masanın idsini giriniz:");
+                                                goto tekrarMasaHesapSecim;
+                                            }
+                                            else if (masaHesapTamamDevam == ConsoleKey.Escape)
+                                            {
+                                                Console.Clear();
+                                                goto anaMenu;
+                                            }
+                                            else
+                                            {
+                                                Console.Write("\nLütfen doğru tuşlara basınız.");
+                                                goto tekrarHesapTamamDevam;
+                                            }
+                                        }
                                     }
                                     else
                                     {
@@ -340,10 +436,6 @@ namespace restorant_projesi_proje1_
                                     Console.Write("Hesabını görmek istediğiniz masa şu an kapalı.Lütfen tekrar seçiniz:");
                                     goto tekrarMasaHesapSecim;
                                 }
-
-                                Console.ReadLine(); //konsolu temizlemeden önce entera basmak gerekir.yoksa hesabı göremeden ana menüye gider
-                                Console.Clear();
-                                goto anaMenu;
                             }
                         }
                     
@@ -351,7 +443,8 @@ namespace restorant_projesi_proje1_
                     case 4:
 
                         Console.Clear();
-                        Console.WriteLine("KASA İŞLEMLERİ\n--------------------------------------------------\n");
+                        kasaIslemleriBasi:
+                        Console.WriteLine("KASA İŞLEMLERİ\n---------------------------------------------------------------\n");
 
                         acikMasaSayisi = 0; //masa işlem kısmında da kullanıldığı için burda sıfırlıyorum.
                         for (i = 0; i < masaAcma.Length; i++)
@@ -365,34 +458,56 @@ namespace restorant_projesi_proje1_
                         if (acikMasaSayisi == 0)
                         {
                             Console.WriteLine("Hiçbir masa açılmamış.Masalar açılmadan toplam ciroyu göremezsiniz.");
-                            Console.WriteLine("Ana menüye yönlendiriliyorsunuz...");
+                            Console.WriteLine("Ana menüye yönlendiriliyorsunuz.Lütfen [ENTER] tuşuna basın.");
                             Console.ReadLine();
+                            Console.Clear();
+                            goto anaMenu;
+                        }
+
+                        Console.Write("ANA MENÜ için [ESC]/Ciroları görme işlemine başlamak için herhangi bir tuşa basınız\n---------------------------------------------------------------");
+
+                        anaMenuTusu = Console.ReadKey(true).Key;
+                        if (anaMenuTusu == ConsoleKey.Escape) //esc girilip girilmediğini kontrol edecek.
+                        {
                             Console.Clear();
                             goto anaMenu;
                         }
 
                         else
                         {
-                            Console.Write("Masanın günlük cirosunu mu görmek istersiniz yoksa dükkanın günlük cirosunu mu?(1.Masa/2.Dükkan):");
+                            Console.Write("\nMasanın günlük cirosunu mu görmek istersiniz yoksa dükkanın günlük cirosunu mu?(1.Masa/2.Dükkan):");
                             tekrarKasaIslemleriSecim:
                             int kasaIslemleriSecim = int.Parse(Console.ReadLine());
 
                             if (kasaIslemleriSecim == 1)
                             {
+
                                 Console.Write("Hangi masanın günlük cirosunu görmek istersiniz:");
-                            tekrarKasaIslemleriSecimMasa:
+                                tekrarKasaIslemleriSecimMasa:
                                 masaId = int.Parse(Console.ReadLine());
 
                                 if (masaId - 1 < masalar.Length)
                                 {
-                                    if (masaDurumu[masaId - 1] == "[dolu]")
+                                    Console.WriteLine($"{masalar[masaId - 1]}'in günlük cirosu:{masaGunlukCiro[masaId - 1]}");
+
+                                    Console.Write("\nMasaların günlük cirosunu görmeye devam etmek ister misiniz?(Evet için [1]/Hayır için [ESC] tuşuna basınız)");
+                                    tekrarMasaCiroTamamDevam:
+                                    var masaCiroTamamDevam = Console.ReadKey(true).Key;
+
+                                    if (masaCiroTamamDevam == ConsoleKey.D1)
                                     {
-                                        Console.WriteLine($"{masalar[masaId - 1]} şu an dolu.İlk olarak masanın hesabını alınız ve masa boşalsın.");
+                                        Console.Write("\nCirosunu görmek istediğiniz masanın idsini giriniz:");
                                         goto tekrarKasaIslemleriSecimMasa;
+                                    }
+                                    else if (masaCiroTamamDevam == ConsoleKey.Escape)
+                                    {
+                                        Console.Clear();
+                                        goto kasaIslemleriBasi;
                                     }
                                     else
                                     {
-                                        Console.WriteLine($"{masalar[masaId - 1]}'in günlük cirosu:{masaGunlukCiro[masaId - 1]}");
+                                        Console.Write("\nLütfen doğru tuşlara basınız.");
+                                        goto tekrarMasaCiroTamamDevam;
                                     }
                                 }
                                 else
@@ -408,16 +523,17 @@ namespace restorant_projesi_proje1_
                                 {
                                     gunlukCiro += masaGunlukCiro[i];
                                 }
-                                Console.WriteLine($"Dükkanın günlük cirosu:{gunlukCiro}");
+                                Console.WriteLine($"Dükkanın günlük cirosu:{gunlukCiro}\n\n[ENTER] tuşuna basarak Kasa İşlemleri menüsüne dönebilirsiniz");
+                                Console.ReadLine();
+                                Console.Clear();
+                                goto kasaIslemleriBasi;
+                                
                             }
                             else
                             {
                                 Console.Write("Lütfen geçerli bir değer giriniz:");
                                 goto tekrarKasaIslemleriSecim;
                             }
-                            Console.ReadLine();
-                            Console.Clear();
-                            goto anaMenu;
                         }
 
                        
